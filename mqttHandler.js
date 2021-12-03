@@ -29,3 +29,8 @@ client.on('connect', () => {
 client.on('message', (topic, payload) => {
   console.log('Received Message:', topic, payload.toString())
 })
+
+module.exports = {
+    mqttTest
+}
+
