@@ -2,12 +2,11 @@
   "name": "availability-checker",
   "version": "1.0.0",
   "description": "",
-  "main": "mqttHandler.js",
+  "main": "availabilityChecker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node mqttHandler.js"
+    "start": "node availabilityChecker.js"
   },
-  
   "repository": {
     "type": "git",
     "url": "https://git.chalmers.se/courses/dit355/test-teams-formation/team-7/availability-checker.git"
@@ -16,6 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "js-priority-queue": "^0.1.5",
+    "mongodb": "^4.2.2",
     "mqtt": "^4.2.8"
   }
 }

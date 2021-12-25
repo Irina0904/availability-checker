@@ -3,6 +3,7 @@ const mqtt = require('mqtt')
 const host = 'broker.emqx.io'
 const port = '1883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
+
 const connectUrl = `mqtt://${host}:${port}`
 
 const client = mqtt.connect(connectUrl, {
@@ -14,13 +15,15 @@ const client = mqtt.connect(connectUrl, {
   reconnectPeriod: 1000,
 })
 
-const topic = '/nodejs/mqtt' 
+
+function mqttTest() {
+    const topic = 'nodejs/mqtt'
 client.on('connect', () => {
   console.log('Connected')
   client.subscribe([topic], () => {
     console.log(`Subscribe to topic '${topic}'`)
   })
-  client.publish(topic, 'message from...', { qos: 0, retain: true }, (error) => {
+  client.publish(topic, 'From Irina: Hello programmer', { qos: 0, retain: true }, (error) => {
     if (error) {
       console.error(error)
     }
@@ -30,7 +33,12 @@ client.on('message', (topic, payload) => {
   console.log('Received Message:', topic, payload.toString())
 })
 
-module.exports = {
-    mqttTest
 }
 
+module.exports = {
+
+  getMQTTClient: function () {
+    return client;
+  },
+  mqttTest
+}
