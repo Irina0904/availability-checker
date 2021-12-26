@@ -20,11 +20,61 @@ function isJson(str) {
   return true;
 }
 
+function compareDates(req1, req2){
+    const date1 = new Date(Date.parse(req1.requestDate)).valueOf();
+    const date2 = new Date(Date.parse(req2.requestDate)).valueOf();
+
+    console.log(date1);
+
+    if (date1 > date2) {
+        return 1;
+    } else if(date1 < date2){
+        return -1;
+    } else{
+        return 0;
+    }
+}
+
+//Here for reference purposes, will be removed later
+/*function testPriorityQueue() {
+    var queue = new PriorityQueue({ comparator: compareDates });
+
+    var req1 = {
+        "requestDate": "2021-12-26T16:17:29.457Z",
+        "clinicName": "Lisebergs Dentists",
+        "clinicId": "61c342759aa2c3b56cea32de",
+        "appointmentDate": "2021-01-15T07:00:00.000Z",
+        "firstname": "",
+        "lastname": "",
+        "email": "",
+        "number": "",
+        "description": ""
+    }
+    var req2 = {
+        "requestDate": "2021-12-26T16:16:29.457Z",
+        "clinicName": "The Crown",
+        "clinicId": "61c342759aa2c3b56cea32de",
+        "appointmentDate": "2021-01-15T07:00:00.000Z",
+        "firstname": "",
+        "lastname": "",
+        "email": "",
+        "number": "",
+        "description": ""
+      }
+    queue.queue(req1);
+    queue.queue(req2);
+    var lowest = queue.dequeue(); // returns 5
+    console.log(lowest);
+}*/
+
+
   var bookingRequest = {};
   client.on("message", (topic, payload) => {
       console.log("Received Message:", topic, payload.toString());
       bookingRequest = payload.toString();
-      processBookingRequest(bookingRequest);
+      var queue = new PriorityQueue({ comparator: compareDates });
+      queue.queue(bookingRequest);
+      processBookingRequest(queue.dequeue());
   });
 
 async function processBookingRequest(request) {
