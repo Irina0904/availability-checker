@@ -114,7 +114,6 @@ async function processBookingRequest(request) {
 }
 
 async function generateResponse(request, numOfAppointments) {
-    var ObjectId = require('mongodb').ObjectId;
     mongoUtil.connectToServer(function (err) {
         if (err) console.log(err);
         const db = mongoUtil.getDb();
@@ -123,7 +122,7 @@ async function generateResponse(request, numOfAppointments) {
         return new Promise((resolve, reject) => {
             let allDentists = [];
           dentists
-            .find({"_id": ObjectId(request.clinicId)})
+            .find({"id": request.clinicId})
             .toArray()
               .then((result) => {
                   allDentists = result;
