@@ -3,10 +3,10 @@ const client = mqttClient.getMQTTClient();
 var mongoUtil = require('./mongoUtil');
 var PriorityQueue = require('js-priority-queue')
 
-const topic = "dentistimo/booking-request";
+const topic = "dentistimo/new-booking-request";
 client.on("connect", () => {
   console.log("Connected");
-  client.subscribe([topic], () => {
+  client.subscribe(topic, {qos: 1}, () => {
     console.log(`Subscribe to topic '${topic}'`);
   });
 });
@@ -35,46 +35,16 @@ function compareDates(req1, req2){
     }
 }
 
-//Here for reference purposes, will be removed later
-/*function testPriorityQueue() {
-    var queue = new PriorityQueue({ comparator: compareDates });
-
-    var req1 = {
-        "requestDate": "2021-12-26T16:17:29.457Z",
-        "clinicName": "Lisebergs Dentists",
-        "clinicId": "61c342759aa2c3b56cea32de",
-        "appointmentDate": "2021-01-15T07:00:00.000Z",
-        "firstname": "",
-        "lastname": "",
-        "email": "",
-        "number": "",
-        "description": ""
-    }
-    var req2 = {
-        "requestDate": "2021-12-26T16:16:29.457Z",
-        "clinicName": "The Crown",
-        "clinicId": "61c342759aa2c3b56cea32de",
-        "appointmentDate": "2021-01-15T07:00:00.000Z",
-        "firstname": "",
-        "lastname": "",
-        "email": "",
-        "number": "",
-        "description": ""
-      }
-    queue.queue(req1);
-    queue.queue(req2);
-    var lowest = queue.dequeue(); // returns 5
-    console.log(lowest);
-}*/
-
 
   var bookingRequest = {};
-  client.on("message", (topic, payload) => {
-      console.log("Received Message:", topic, payload.toString());
-      bookingRequest = payload.toString();
-      var queue = new PriorityQueue({ comparator: compareDates });
-      queue.queue(bookingRequest);
-      processBookingRequest(queue.dequeue());
+client.on("message", (topic, payload) => {
+  if (topic === "dentistimo/new-booking-request") {
+    console.log("Received Message:", topic, payload.toString());
+    bookingRequest = payload.toString();
+    var queue = new PriorityQueue({ comparator: compareDates });
+    queue.queue(bookingRequest);
+    processBookingRequest(queue.dequeue());
+    }
   });
 
 async function processBookingRequest(request) {
@@ -90,7 +60,7 @@ async function processBookingRequest(request) {
         .toArray()
         .then((result) => {
             allBookings = result;
-            console.log(allBookings);
+            //console.log(allBookings);
             
 
            
@@ -135,7 +105,7 @@ async function generateResponse(request, numOfAppointments) {
                       let rejectMessage = {
                         "response": "Rejected"
                       }
-                      client.publish('dentistimo/booking-response', JSON.stringify(rejectMessage), { qos: 0, retain: false }, (error) => {
+                      client.publish('dentistimo/send-booking-response', JSON.stringify(rejectMessage), { qos: 0, retain: false }, (error) => {
                         if (error) {
                           console.error(error)
                         }
@@ -147,7 +117,7 @@ async function generateResponse(request, numOfAppointments) {
                           "bookingRequest": request
                       }
                       console.log(approveMessage);
-                      client.publish('dentistimo/booking-response', JSON.stringify(approveMessage), { qos: 0, retain: false }, (error) => {
+                      client.publish('dentistimo/send-booking-response', JSON.stringify(approveMessage), { qos: 0, retain: false }, (error) => {
                         if (error) {
                           console.error(error)
                         }
